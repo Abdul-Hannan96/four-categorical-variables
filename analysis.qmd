@@ -1,22 +1,54 @@
 ---
 title: "Four-Categorical-Variables"
-format: html
-# In the YAML header:
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    theme: cosmo
 execute:
   echo: false
-
+  warning: false
+  message: false
+  error: false
 ---
 
 
 ```{r}
 # Setup chunk
 #| label: setup
-#| message: false
+
 library(tidyverse)
 library(primer.data)
+library(tidymodels)
+library(broom)
+library(tidymodels)
+library(gtsummary)
+library(easystats)
+library(gt)             
+library(nnet)
 ```
+## Data Generating Mechanism:
+$$
+P(Y = k) = \frac{e^{\beta_{k0} + \beta_{k1} X_1 + \beta_{k2} X_2 + \cdots + \beta_{kn} X_n}}{\sum_{j=1}^{K} e^{\beta_{j0} + \beta_{j1} X_1 + \beta_{j2} X_2 + \cdots + \beta_{jn} X_n}}
+$$
 
-```{r}
+with $Y \sim \text{Multinomial}(\boldsymbol{\rho})$ where $\boldsymbol{\rho} = (\rho_1, \rho_2, \ldots, \rho_K)$ are the probabilities above.
+
+
+<br>
+<br>
+
+## Model Mathematical Expression:
+$$
+\begin{aligned}
+\hat{\rho}_{clinton} &= \frac{e^{0.45 - 0.25 \cdot male}}{1 + e^{0.45 - 0.25 \cdot male} + e^{-0.85 + 0.42 \cdot male}} \\
+\hat{\rho}_{perot}   &= \frac{e^{-0.85 + 0.42 \cdot male}}{1 + e^{0.45 - 0.25 \cdot male} + e^{-0.85 + 0.42 \cdot male}} \\
+\hat{\rho}_{bush}    &= 1 - \hat{\rho}_{clinton} - \hat{\rho}_{perot}
+\end{aligned}
+$$
+
+```{r model, cache=TRUE}
 #| message: false
 #| warning: false
 nes_92 <- nes |> 
@@ -31,6 +63,37 @@ nes_92 <- nes |>
 
 ```
 
+```{r}
+
+#| label: fit_model
+
+
+fit_nes <- 
+  multinom_reg(engine = "nnet") %>%
+  fit(pres_vote ~ sex, data = nes_92)
+
+```
+
+
+```{r results_table}
+#| label: results_table
+
+fit_nes %>%
+  tidy(conf.int = TRUE) %>%
+  select(term, estimate, conf.low, conf.high) %>%
+  gt() %>%
+  tab_header(
+    title = "Model Estimates for Voter Preference by Gender",
+    subtitle = "Data Source: 1992 National Election Studies (NES)"
+  ) %>%
+  cols_label(
+    term = "Term",
+    estimate = "Estimate",
+    conf.low = "95% CI Lower",
+    conf.high = "95% CI Upper"
+  )
+
+```
 ## Summary:
 People's political preferences can often vary based on personal characteristics such as sex.
-Using data from the 1992 American National Election Studies (ANES), which includes thousands of observations collected before and after the election, we examine how voting preferences differed between men and women for the three main candidates: Clinton, Bush, and Perot.A limitation of our model is that the relationship between gender and vote choice may have changed over time, which could violate the assumption of stability.
+Using data from the 1992 American National Election Studies (ANES), which includes thousands of observations collected before and after the election, we examine how voting preferences differed between men and women for the three main candidates: Clinton, Bush, and Perot.A limitation of our model is that the relationship between gender and vote choice may have changed over time, which could violate the assumption of stability.We model voter preference as a multinomial function of sex. This allows us to estimate the probability of a voter choosing Clinton, Bush, or Perot based on whether they are male or female.
