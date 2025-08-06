@@ -27,6 +27,8 @@ library(gtsummary)
 library(easystats)
 library(gt)             
 library(nnet)
+library(marginaleffects)
+
 ```
 ## Data Generating Mechanism:
 $$
@@ -94,6 +96,25 @@ fit_nes %>%
   )
 
 ```
+
+
+```{r}
+# plot_predictions(fit_nes, type = "prob", condition = c("sex"))
+# plot_predictions(fit_nes, type = "prob", by = "sex", draw = FALSE)
+
+plot_predictions(fit_nes, type = "prob", condition = c("sex")) +
+  labs(
+    title = "How Gender Predicted Vote Choice in the 1992 Election",
+    subtitle = "Women were more likely to vote for Clinton, men for Perot and Bush",
+    caption = "Data: 1992 National Election Study",
+    x = "Sex of Voter",
+    y = "Predicted Probability of Vote"
+  ) +
+  theme_minimal()
+
+
+```
+
 ## Summary:
 People's political preferences can often vary based on personal characteristics such as sex.
-Using data from the 1992 American National Election Studies (ANES), which includes thousands of observations collected before and after the election, we examine how voting preferences differed between men and women for the three main candidates: Clinton, Bush, and Perot.A limitation of our model is that the relationship between gender and vote choice may have changed over time, which could violate the assumption of stability.We model voter preference as a multinomial function of sex. This allows us to estimate the probability of a voter choosing Clinton, Bush, or Perot based on whether they are male or female.
+Using data from the 1992 American National Election Studies (ANES), which includes thousands of observations collected before and after the election, we examine how voting preferences differed between men and women for the three main candidates: Clinton, Bush, and Perot.A limitation of our model is that the relationship between gender and vote choice may have changed over time, which could violate the assumption of stability.We model voter preference as a multinomial function of sex. This allows us to estimate the probability of a voter choosing Clinton, Bush, or Perot based on whether they are male or female.Men had a 12% higher predicted probability of voting for Perot than women, with a margin of error of about ±4%.
