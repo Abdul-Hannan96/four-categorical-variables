@@ -1,5 +1,36 @@
 ---
 title: "Four-Categorical-Variables"
 format: html
+# In the YAML header:
+execute:
+  echo: false
+
 ---
 
+
+```{r}
+# Setup chunk
+#| label: setup
+#| message: false
+library(tidyverse)
+library(primer.data)
+```
+
+```{r}
+#| message: false
+#| warning: false
+nes_92 <- nes |> 
+  filter(year == 1992) |> 
+  select(sex, pres_vote) |> 
+  drop_na() |> 
+  mutate(pres_vote = as.factor(case_when(
+    pres_vote == "Democrat" ~ "Clinton",
+    pres_vote == "Republican" ~ "Bush",
+    pres_vote == "Third Party" ~ "Perot",
+  )))
+
+```
+
+## Summary:
+People's political preferences can often vary based on personal characteristics such as sex.
+Using data from the 1992 American National Election Studies (ANES), which includes thousands of observations collected before and after the election, we examine how voting preferences differed between men and women for the three main candidates: Clinton, Bush, and Perot.A limitation of our model is that the relationship between gender and vote choice may have changed over time, which could violate the assumption of stability.
